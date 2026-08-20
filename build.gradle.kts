@@ -27,6 +27,9 @@ repositories {
     mavenLocal()
 }
 
+extra["httpclient5.version"] = "5.6.3"
+extra["httpcore5.version"] = "5.4.3"
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-actuator")

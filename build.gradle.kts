@@ -29,8 +29,16 @@ repositories {
 
 extra["httpclient5.version"] = "5.6.3"
 extra["httpcore5.version"] = "5.4.3"
+extra["jackson-bom.version"] = "2.21.5"
+extra["log4j2.version"] = "2.25.5"
 
 dependencies {
+    constraints {
+        implementation("at.yawk.lz4:lz4-java:1.11.2") {
+            because("Fixes CVE-2026-59949 in the kafka-clients transitive dependency")
+        }
+    }
+
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")

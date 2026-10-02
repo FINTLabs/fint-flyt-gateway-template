@@ -100,7 +100,7 @@ The template uses shared workflows from `FINTLabs/fint-flyt-github-workflows`:
 
 ## Dependencies
 This template depends on:
-- `no.novari:flyt-gateway-starter:3.0.0`
+- `no.novari:flyt-gateway-starter:4.2.0`
 
 The gateway starter APIs use the `no.novari.flyt.gateway.instance` package.
 

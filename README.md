@@ -69,7 +69,7 @@ Multipart requests to `/api/example/instances/advanced` must include an `instanc
 ```
 
 ## Testing Locally
-Run `docker-compose.yaml` to start local dependencies (Kafka, Kafdrop, Postgres). Kafka messages can be inspected in Kafdrop:
+Start Kafka on `localhost:9092` with `docker compose --profile tools up -d`. The `tools` profile also starts Kafdrop, where Kafka messages can be inspected:
 - http://localhost:19000/
 
 Run `fint-flyt-authorization-service` locally as well:

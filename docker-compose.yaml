@@ -1,6 +1,25 @@
 name: fint-flyt-gateway-template
 
 services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: fint-flyt-gateway-template-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: flais
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d flais"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   kafka:
     image: apache/kafka:3.9.2
     container_name: fint-flyt-gateway-template-kafka

@@ -69,7 +69,7 @@ Multipart requests to `/api/example/instances/advanced` must include an `instanc
 ```
 
 ## Testing Locally
-Start Kafka on `localhost:9092` with `docker compose --profile tools up -d`. The `tools` profile also starts Kafdrop, where Kafka messages can be inspected:
+Start Kafka on `localhost:9092` and Postgres on `localhost:5432` (database `flais`, user and password `postgres`) with `docker compose --profile tools up -d`. Services in other repos can use this Postgres when they run locally. Kafka topics and the database are empty on every start. The `tools` profile also starts Kafdrop, where Kafka messages can be inspected:
 - http://localhost:19000/
 
 Run `fint-flyt-authorization-service` locally as well:

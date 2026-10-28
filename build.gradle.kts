@@ -34,6 +34,11 @@ java {
     }
 }
 
+// Dependabot resolves with JDK 21; an explicit release keeps JVM 25 as the resolution target so gradle.lockfile gets updated.
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(25)
+}
+
 repositories {
     mavenCentral()
     maven {

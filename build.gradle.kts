@@ -22,7 +22,7 @@ plugins {
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.spring") version "2.4.10"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
-    id("io.github.ben-manes.versions") version "0.66.0"
+    id("io.github.ben-manes.versions") version "0.67.0"
 }
 
 group = "no.novari"
@@ -63,7 +63,7 @@ dependencyLocking {
 
 dependencies {
     constraints {
-        implementation("at.yawk.lz4:lz4-java:1.12.1") {
+        implementation("at.yawk.lz4:lz4-java:1.13.0") {
             because("Fixes CVE-2026-59949 in the kafka-clients transitive dependency")
         }
         implementation("org.xerial.snappy:snappy-java:1.1.10.12") {

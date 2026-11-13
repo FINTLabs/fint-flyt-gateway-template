@@ -100,7 +100,8 @@ The template uses shared workflows from `FINTLabs/fint-flyt-github-workflows`:
 
 ## Dependencies
 This template depends on:
-- `no.novari:flyt-gateway-starter:4.2.0`
+- `no.novari:flyt-gateway-starter` (version in `build.gradle.kts`). See its README for the OAuth clients and
+  registrations a gateway needs.
 
 The gateway starter APIs use the `no.novari.flyt.gateway.instance` package.
 

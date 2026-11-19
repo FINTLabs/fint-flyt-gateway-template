@@ -3,6 +3,12 @@ fint:
 novari:
     flyt:
         file-service-url: http://localhost:8091
+        # Local fint-flyt-history-service and fint-flyt-authorization-service (see README).
+        history-service-url: http://localhost:8083
+        web-resource-server:
+            security:
+                authorization:
+                    base-url: http://localhost:8086
         gateway-starter:
             check-integration-exists: false
     kafka:

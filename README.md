@@ -72,12 +72,9 @@ Multipart requests to `/api/example/instances/advanced` must include an `instanc
 Start Kafka on `localhost:9092` and Postgres on `localhost:5432` (database `flais`, user and password `postgres`) with `docker compose --profile tools up -d`. Services in other repos can use this Postgres when they run locally. Kafka topics and the database are empty on every start. The `tools` profile also starts Kafdrop, where Kafka messages can be inspected:
 - http://localhost:19000/
 
-Run `fint-flyt-authorization-service` locally as well:
-- https://github.com/FINTLabs/fint-flyt-authorization-service
-- Configure it with your client ID and client secret.
+API calls are authorized against [`fint-flyt-authorization-service`](https://github.com/FINTLabs/fint-flyt-authorization-service) on `http://localhost:8086`, so run it locally as well. The gateway gets its token for these calls from NAM, so set `FINT_FLYT_AUTHORIZATION_SSO_CLIENT_ID` and `FINT_FLYT_AUTHORIZATION_SSO_CLIENT_SECRET` to `fint-flyt-authorization-oauth2-client` from a beta namespace, and start it with `fint.flyt.authorization.sso.client-id` set to the same client ID so the token is accepted.
 
-If authorization service is unavailable, requests will return `403 Forbidden`.
-After restarting services, wait 20-30 seconds for local Kafka synchronization before testing requests.
+If authorization-service cannot be reached, requests return `401 Unauthorized`.
 
 Run this gateway with local profile:
 ```bash

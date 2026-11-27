@@ -1,9 +1,9 @@
-package no.novari.flyt
+package no.novari.flyt.example.gateway
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
-@SpringBootApplication(scanBasePackages = ["no.novari"])
+@SpringBootApplication
 class Application
 
 fun main(args: Array<String>) {

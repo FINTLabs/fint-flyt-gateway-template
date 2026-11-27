@@ -3,8 +3,7 @@ fint:
 
 logging:
     level:
-        no.novari.cache.ehcache.FintEhCacheEventLogger: WARN
-        no.novari.flyt.webresourceserver: DEBUG
+        no.novari.flyt.security: DEBUG
 
 server:
     error:
@@ -16,7 +15,7 @@ spring:
         include:
             - flyt-kafka
             - flyt-logging
-            - flyt-web-resource-server
+            - flyt-security
             - flyt-file-client
             - flyt-authorization-client
 

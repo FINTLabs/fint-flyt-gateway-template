@@ -21,7 +21,6 @@ updates:
           platform-and-tooling:
               patterns:
                   - "org.jetbrains.kotlin*"
-                  - "com.github.ben-manes.versions"
                   - "org.gradle.toolchains.foojay-resolver-convention"
                   - "org.jlleitschuh.gradle.ktlint"
           persistence-and-test:
@@ -41,10 +40,6 @@ updates:
                   - minor
                   - patch
       ignore:
-          # 9.x pulls in Jackson 3 (tools.jackson), while Spring Boot 3.5 uses Jackson 2
-          - dependency-name: "net.logstash.logback:logstash-logback-encoder"
-            update-types:
-                - "version-update:semver-major"
           - dependency-name: "org.springframework*"
             update-types:
                 - "version-update:semver-major"

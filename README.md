@@ -13,15 +13,34 @@ Customize this template for your source system before deployment.
 ### Rename and adjust template identifiers
 Update template names and identifiers so they match your source application:
 - Rename project/artifact names such as `fint-flyt-example-gateway`.
+- Rename the `no.novari.flyt.example.gateway` package and the `/api/example` routes.
 - Update `fint.application-id` in `src/main/resources/application.yaml`.
 - Update metadata and image values in `kustomize/base/flais.yaml`.
 
 ### Configure source application access
-Set the source application ID received from `fint-flyt-authorization-service`:
-- `src/main/resources/application-flyt-web-resource-server.yaml`
-- Property: `novari.flyt.web-resource-server.security.api.external.authorized-source-application-ids`
+In `src/main/resources/application-flyt-security.yaml`, set the gateway's routes and its `SourceApplication` from
+[flyt-security-starter](https://github.com/FINTLabs/fint-flyt-security-starter); a new source application needs an
+entry there first. Until both are set, the template's routes are denied.
 
-This ensures requests are only accepted for authorized source applications.
+```yaml
+novari:
+    flyt:
+        security:
+            external:
+                paths: /api/acos/**
+                source-application: ACOS
+```
+
+Only tokens from the source application's NAM client are accepted. Load its client ID under `spec.env` in
+`kustomize/base/flais.yaml`:
+
+```yaml
+-   name: fint.flyt.acos.sso.client-id
+    valueFrom:
+        secretKeyRef:
+            name: fint-flyt-acos-oauth2-client
+            key: fint.flyt.acos.sso.client-id
+```
 
 ### Local application configuration
 Adjust local settings in `src/main/resources/application-local-staging.yaml`:
@@ -72,9 +91,9 @@ Multipart requests to `/api/example/instances/advanced` must include an `instanc
 Start Kafka on `localhost:9092` and Postgres on `localhost:5432` (database `flais`, user and password `postgres`) with `docker compose --profile tools up -d`. Services in other repos can use this Postgres when they run locally. Kafka topics and the database are empty on every start. The `tools` profile also starts Kafdrop, where Kafka messages can be inspected:
 - http://localhost:19000/
 
-API calls are authorized against [`fint-flyt-authorization-service`](https://github.com/FINTLabs/fint-flyt-authorization-service) on `http://localhost:8086`, so run it locally as well. The gateway gets its token for these calls from NAM, so set `FINT_FLYT_AUTHORIZATION_SSO_CLIENT_ID` and `FINT_FLYT_AUTHORIZATION_SSO_CLIENT_SECRET` to `fint-flyt-authorization-oauth2-client` from a beta namespace, and start it with `fint.flyt.authorization.sso.client-id` set to the same client ID so the token is accepted.
-
-If authorization-service cannot be reached, requests return `401 Unauthorized`.
+Calls need a NAM token from the source application's client, and `fint.flyt.<app>.sso.client-id` set to that client ID.
+The gateway calls intgr-conf-service and history-service with `fint-flyt-authorization-oauth2-client`, so set
+`FINT_FLYT_AUTHORIZATION_SSO_CLIENT_ID` and `FINT_FLYT_AUTHORIZATION_SSO_CLIENT_SECRET` from a beta namespace.
 
 Run this gateway with local profile:
 ```bash
@@ -88,33 +107,24 @@ The template uses shared workflows from `FINTLabs/fint-flyt-github-workflows`:
 - `MD.yaml` builds, publishes, and deploys manually to the selected cluster and organisation.
 
 ## Technology
-- Spring Boot 3.5.15
-- Java 25
-- Kotlin 2.4.0
-- ktlint
-- Gradle 9.6.1
+- Spring Boot 4.2, Jackson 3, Java 25 and Kotlin
+- `no.novari:flyt-gateway-starter` (versions in `gradle/libs.versions.toml`). See its README for the OAuth clients and
+  registrations a gateway needs.
 - Blocking architecture (non-reactive)
 
-## Dependencies
-This template depends on:
-- `no.novari:flyt-gateway-starter` (version in `build.gradle.kts`). See its README for the OAuth clients and
-  registrations a gateway needs.
-
-The gateway starter APIs use the `no.novari.flyt.gateway.instance` package.
-
 ## Additional Documentation
-For more details on FINT Flyt architecture and setup, see:
+See [docs/architecture.md](docs/architecture.md) for C4 diagrams. For more details on FINT Flyt architecture and setup, see:
 - https://fintlabs.atlassian.net/wiki/spaces/FINTKB/pages/379355169/FINT+Flyt+Arkitektur+event+driven
 
 Document your source application details (data models, request contracts, and endpoints) alongside your implementation.
 
 ## Dependency Locking
 
-The build uses [Gradle dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html), so every build resolves exactly the same direct and transitive versions. The locked versions live in the committed `gradle.lockfile` files. A pull request therefore shows every transitive version change it causes. Gradle plugins are not locked, because Dependabot only updates `gradle.lockfile`; their versions are pinned in the `plugins` block instead.
+The build uses [Gradle dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html), so every build resolves exactly the same direct and transitive versions. The locked versions live in the committed `gradle.lockfile` files. A pull request therefore shows every transitive version change it causes. Gradle plugins are not locked, because Dependabot only updates `gradle.lockfile`; their versions are pinned in `gradle/libs.versions.toml` instead.
 
 **Automatic (Dependabot):** Dependabot updates the lockfiles in its own pull requests, so no manual step is needed. If two Dependabot pull requests conflict in a lockfile, Dependabot rebases the remaining one after the first is merged. If it does not, comment `@dependabot recreate` on the pull request.
 
-**Manual:** Any change you make by hand that affects dependency resolution requires regenerating the lockfiles. That covers versions, `extra[...]` properties, constraints, and adding or removing a dependency:
+**Manual:** Any change you make by hand that affects dependency resolution requires regenerating the lockfiles. That covers versions, constraints, and adding or removing a dependency:
 
 ```bash
 ./gradlew dependencies --write-locks

@@ -16,6 +16,10 @@ Update template names and identifiers so they match your source application:
 - Rename the `no.novari.flyt.example.gateway` package and the `/api/example` routes.
 - Update `fint.application-id` in `src/main/resources/application.yaml`.
 - Update metadata and image values in `kustomize/base/flais.yaml`.
+- Update `kustomize/overlays/fintlabs-no/beta/kustomization.yaml` to match: the patch `target.name`, the
+  `app.kubernetes.io/instance` label and the ingress `basePath` (`/beta/fintlabs-no/api/example/instances`). The patch
+  finds the Application by name, so with the old name Kustomize skips it without an error, and the gateway is deployed
+  without its ingress, health check paths and Kafka access.
 
 ### Configure source application access
 In `src/main/resources/application-flyt-security.yaml`, set the gateway's routes and its `SourceApplication` from
@@ -93,7 +97,9 @@ Start Kafka on `localhost:9092` and Postgres on `localhost:5432` (database `flai
 
 Calls need a NAM token from the source application's client, and `fint.flyt.<app>.sso.client-id` set to that client ID.
 The gateway calls intgr-conf-service and history-service with `fint-flyt-authorization-oauth2-client`, so set
-`FINT_FLYT_AUTHORIZATION_SSO_CLIENT_ID` and `FINT_FLYT_AUTHORIZATION_SSO_CLIENT_SECRET` from a beta namespace.
+`FINT_FLYT_AUTHORIZATION_SSO_CLIENT_ID` and `FINT_FLYT_AUTHORIZATION_SSO_CLIENT_SECRET` from a beta namespace. It
+uploads attachments to file-service with `fint-flyt-file-oauth2-client`, so also set `FINT_SSO_CLIENT_ID` and
+`FINT_SSO_CLIENT_SECRET` from the same namespace.
 
 Run this gateway with local profile:
 ```bash

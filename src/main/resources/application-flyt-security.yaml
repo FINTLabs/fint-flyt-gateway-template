@@ -1,0 +1,8 @@
+# Replace with the gateway's routes and its SourceApplication from flyt-security-starter, e.g. /api/acos/** and ACOS.
+# A new source application needs an entry in SourceApplication first. Until both are set, the example routes are denied.
+#novari:
+#    flyt:
+#        security:
+#            external:
+#                paths: /api/example/**
+#                source-application: ACOS

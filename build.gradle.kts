@@ -1,28 +1,18 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
     dependencies {
-        classpath(platform("com.fasterxml.jackson:jackson-bom:2.23.0"))
         constraints {
-            classpath("org.apache.httpcomponents.client5:httpclient5:5.6.5")
-            classpath("org.apache.httpcomponents.core5:httpcore5:5.5")
-            classpath("org.apache.httpcomponents.core5:httpcore5-h2:5.5")
-            classpath("org.apache.commons:commons-lang3:3.22.0")
+            classpath(libs.commons.lang3) {
+                because("Fixes CVE-2025-48924 in spring-boot-buildpack-platform")
+            }
         }
     }
 }
 
 plugins {
-    id("org.springframework.boot") version "3.5.16"
-    id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.4.10"
-    kotlin("plugin.spring") version "2.4.10"
-    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
-    id("io.github.ben-manes.versions") version "0.67.0"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.ktlint)
 }
 
 group = "no.novari"
@@ -30,7 +20,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(25))
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -51,65 +41,46 @@ tasks.jar {
     isEnabled = false
 }
 
-extra["httpclient5.version"] = "5.6.3"
-extra["httpcore5.version"] = "5.4.4"
-extra["jackson-bom.version"] = "2.21.7"
-extra["log4j2.version"] = "2.25.5"
-extra["tomcat.version"] = "10.1.59"
-
 dependencyLocking {
     lockAllConfigurations()
 }
 
 dependencies {
+    // A platform instead of the dependency-management plugin, which puts Boot's Kotlin on ktlint's classpath.
+    implementation(platform(libs.spring.boot.dependencies))
+
     constraints {
-        implementation("at.yawk.lz4:lz4-java:1.14.1") {
-            because("Fixes CVE-2026-59949 in the kafka-clients transitive dependency")
-        }
-        implementation("org.xerial.snappy:snappy-java:1.1.10.12") {
-            because("Fixes CVE-2026-93451, CVE-2026-108106 and CVE-2026-116590 in kafka-clients")
+        ktlint(libs.logback.core) {
+            because(
+                "ktlint 1.8.0 brings logback-core 1.3.16, which has CVE-2026-1225, CVE-2026-9828 and CVE-2026-10532. " +
+                    "Only the ktlint tool classpath",
+            )
         }
     }
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation("no.novari:flyt-gateway-starter:5.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("tools.jackson.module:jackson-module-kotlin")
+
+    implementation(libs.flyt.gateway.starter)
 
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
-    // Pinned to 8.x: 9.x pulls in Jackson 3 (tools.jackson), while Spring Boot 3.5 uses Jackson 2
-    runtimeOnly("net.logstash.logback:logstash-logback-encoder:8.1")
+    runtimeOnly(libs.logstash.logback.encoder)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions {
-        freeCompilerArgs.add("-Xjsr305=strict")
-    }
+ktlint {
+    version = libs.versions.ktlint.cli
 }
 
-tasks.withType<Test> {
+tasks.test {
     useJUnitPlatform()
 }
 
 tasks.named("check") {
     dependsOn("ktlintCheck")
-}
-
-fun isNonStable(version: String): Boolean {
-    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
-    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-    val isStable = stableKeyword || regex.matches(version)
-    return !isStable
-}
-
-tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
-    rejectVersionIf {
-        isNonStable(candidate.version)
-    }
 }

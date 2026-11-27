@@ -5,11 +5,10 @@ import no.novari.flyt.example.gateway.instance.model.SimpleExample
 import no.novari.flyt.example.gateway.instance.model.SimpleExampleStatus
 import no.novari.flyt.gateway.instance.InstanceProcessor
 import no.novari.flyt.gateway.instance.MultipartInstanceProcessor
-import no.novari.flyt.webresourceserver.UrlPaths.EXTERNAL_API
+import no.novari.flyt.security.UrlPaths.EXTERNAL_API
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -39,9 +38,8 @@ class ExampleController(
     @PostMapping("/simple")
     fun createSimpleExample(
         @RequestBody simpleExample: SimpleExample,
-        authentication: Authentication,
     ): ResponseEntity<Void> {
-        return simpleExampleProcessor.processInstance(authentication, simpleExample)
+        return simpleExampleProcessor.processInstance(simpleExample)
     }
 
     @PostMapping(
@@ -50,9 +48,8 @@ class ExampleController(
     )
     fun createAdvancedExample(
         @RequestBody advancedExample: AdvancedExample,
-        authentication: Authentication,
     ): ResponseEntity<Void> {
-        return advancedExampleProcessor.processInstance(authentication, advancedExample)
+        return advancedExampleProcessor.processInstance(advancedExample)
     }
 
     @PostMapping(
@@ -62,10 +59,8 @@ class ExampleController(
     fun createAdvancedMultipartExample(
         @RequestPart(INSTANCE_PART_NAME) advancedExample: AdvancedExample,
         multipartRequest: MultipartHttpServletRequest,
-        authentication: Authentication,
     ): ResponseEntity<Void> {
         return advancedMultipartExampleProcessor.processInstance(
-            authentication = authentication,
             incomingInstance = advancedExample,
             multipartFiles =
                 multipartRequest.multiFileMap
